@@ -9,7 +9,7 @@
     <div
         v-for="stick in sticks"
         class="drr-stick"
-        :class="['drr-stick-' + stick, resizable ? '' : 'not-resizable']"
+        :class="['drr-stick-' + stick]"
         @mousedown.stop.prevent="stickDown(stick, $event)"
         @touchstart.stop.prevent="stickDown(stick, $event)"
         :style="drrStick(stick)">
@@ -175,8 +175,7 @@ export default {
         if (stick == 'ro') {
           stickStyle['top'] = `${-stickSize / 2 - roStickSize}px`;
           stickStyle['marginLeft'] = `${-stickSize / 2 + 1}px`;
-        }
-        else {
+        } else {
           stickStyle[styleMapping.y[stick[0]]] = `${-stickSize / 2}px`;
           stickStyle[styleMapping.x[stick[1]]] = `${-stickSize / 2}px`;
         }
@@ -208,12 +207,11 @@ export default {
     },
 
     hasActiveContent: {
-      handler: function(val) {
+      handler: function (val) {
         if (val) {
           this.$on('content-active', this.onContentActive)
           this.$on('content-inactive', this.onContentInactive)
-        }
-        else {
+        } else {
           this.$off('content-active')
           this.$off('content-inactive')
           if (this.contentActive)
@@ -266,7 +264,7 @@ export default {
   created: function () {
     this.stickDrag = false;
     this.bodyDrag = false;
-    this.stickStartPos = { mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0 };
+    this.stickStartPos = {mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0};
 
     this.currentStick = [];
   },
@@ -317,10 +315,10 @@ export default {
     dblclick(e) {
       this.$emit('content-active')
     },
-    dbltap(e){
+    dbltap(e) {
       const now = new Date().getTime();
       const timesince = now - this.tapCounter;
-      if((timesince < 600) && (timesince > 0)){
+      if ((timesince < 600) && (timesince > 0)) {
         // double tap
         this.$emit('content-active')
       }
@@ -343,9 +341,16 @@ export default {
       }
     },
 
-    deselect() {
-      this.$emit('deselect')
-      this.active = false
+    deselect(e) {
+      const mouseX = e.pageX
+      const mouseY = e.pageY
+      if (mouseX < this.$el.getBoundingClientRect().x ||
+          mouseX > (this.$el.getBoundingClientRect().x + this.$el.getBoundingClientRect().width) ||
+          mouseY < this.$el.getBoundingClientRect().y ||
+          mouseY > (this.$el.getBoundingClientRect().y + this.$el.getBoundingClientRect().height)) {
+        this.$emit('deselect')
+        this.active = false
+      }
     },
 
     move(ev) {
@@ -375,8 +380,7 @@ export default {
     bodyMouseDown: function (e) {
       if (this.contentActive || !this.selectable) {
         return
-      }
-      else {
+      } else {
         e.stopPropagation()
         e.preventDefault()
       }
@@ -484,11 +488,11 @@ export default {
         this.$emit('change', this.rect);
       }
 
-      this.stickStartPos = { mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0 };
+      this.stickStartPos = {mouseX: 0, mouseY: 0, x: 0, y: 0, w: 0, h: 0};
     },
 
     stickDown: function (stick, ev) {
-      if (!this.resizable || !this.active)
+      if (!this.active)
         return
 
       this.resizeStartEmitted = false
@@ -531,8 +535,7 @@ export default {
         this.rotation = Vector.deg(v.angle()) + 90
         this.rotated = true
         this.$emit('rotate', this.rect);
-      }
-      else {
+      } else {
         let dirX = this.currentStick[1] == 'r' ? 1 : -1
         let dirY = this.currentStick[0] == 'b' ? 1 : -1
 
@@ -542,8 +545,7 @@ export default {
           let axis = new Vector(dirX * stickStartPos.width / 2, dirY * stickStartPos.height / 2)
           axis = axis.rotate(phi).unit()
           p = axis.mul(axis.mul(delta))
-        }
-        else {
+        } else {
           p = delta
         }
 
@@ -579,13 +581,11 @@ export default {
               if (dx / p.x < dy / p.y) {
                 p.y += dx * p.y / p.x
                 p.x += dx
-              }
-              else {
+              } else {
                 p.x += dy * p.x / p.y
                 p.y += dy
               }
-            }
-            else {
+            } else {
               p.x += dx
               p.y += dy
             }
@@ -613,13 +613,11 @@ export default {
               if (dx / p.x < dy / p.y) {
                 p.y += dx * p.y / p.x
                 p.x += dx
-              }
-              else {
+              } else {
                 p.x += dy * p.x / p.y
                 p.y += dy
               }
-            }
-            else {
+            } else {
               p.x += dx
               p.y += dy
             }
